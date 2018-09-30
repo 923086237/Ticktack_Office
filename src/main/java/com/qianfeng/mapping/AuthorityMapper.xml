@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianfeng.dao.IAuthorityDao">
+	<resultMap id="authorityMap" type="authority">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="aicon" jdbcType="VARCHAR" property="aicon" />
+		<result column="aurl" jdbcType="VARCHAR" property="aurl" />
+		<result column="parentId" jdbcType="INTEGER"
+			property="parentid" />
+		<result column="title" jdbcType="VARCHAR" property="title" />
+		<result column="type" jdbcType="INTEGER" property="type" />
+		
+		<collection property="authority" 
+			ofType="Authority"
+			select="findAllName"
+			fetchType="eager"
+			column="id">
+		</collection>
+	</resultMap>
+
+	<select id="findAuthorityByNo" parameterType="string"
+		resultMap="authorityMap">
+		SELECT DISTINCT a.id, a.aicon, a.aurl, a.parentId, a.title, a.type
+		FROM t_user u
+		INNER JOIN t_userrole ur
+		ON u.id = ur.rid
+		INNER JOIN t_role r
+		ON ur.rid = r.id
+		INNER JOIN t_authority a
+		ON r.parentId = a.parentId
+		WHERE u.no =#{no}
+	</select>
+
+	<select id="findByParentid" resultType="Authority"
+		parameterType="Integer">
+		select * from t_authority where parentId=#{id}
+	</select>
+
+	<select id="findTitle" resultType="Authority"
+		parameterType="map">
+		SELECT a.* FROM t_user u
+		INNER JOIN t_userrole ur
+		on u.id=ur.uid
+		INNER JOIN t_roleauthority r
+		on ur.rid=r.rid
+		INNER JOIN t_authority a
+		on r.aid=a.id
+		where u.no=#{no} and a.parentid=#{parentid}
+	</select>
+
+	<select id="findRoleAuth" resultMap="authorityMap"
+		parameterType="int">
+		select t1.* from t_authority t1
+		INNER JOIN t_roleauthority tr1
+		on t1.id = tr1.aid
+		INNER JOIN t_role r1
+		on tr1.rid = r1.ro_id WHERE t1.parentId!=0 and r1.ro_id = #{roid}
+
+	</select>
+	<!-- 查询二级表权限的列表 -->
+	<select id="findRoleAllAuth" resultMap="authorityMap">
+		select DISTINCT t1.* from
+		t_authority t1
+		INNER JOIN t_roleauthority tr1
+		on t1.id = tr1.aid
+		INNER JOIN t_role r1
+		on tr1.rid = r1.ro_id WHERE t1.parentId!=0;
+	</select>
+	<!-- 根据adi和rid删除角色权限关联关系 -->
+	<delete id="deleteRoleAuthAll" parameterType="map">
+		delete from t_roleauthority where rid = #{rid} in
+		<!-- 遍历 collection 要遍历数据 item 遍历到的元素的变量名 open/close 指定前面和后面包裹数据时使用的符号 separator 
+			遍历到的元素的分隔符 -->
+		<foreach collection="array" item="aid" open="(" close=")"
+			separator=",">
+			#{aid}
+		</foreach>
+	</delete>
+	<!-- 删除角色权限关联关系 -->
+	<delete id="deleteRoleAll" parameterType="int">
+		DELETE from
+		t_roleauthority where rid = #{rid}
+	</delete>
+	<!-- 增加角色权限关联关系 -->
+	<insert id="addRoleAuthAll" parameterType="java.util.ArrayList">
+		insert into t_roleauthority(rid,aid) values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.rid},#{item.aid})
+		</foreach>
+
+	</insert>
+
+	<!-- 查找所有权限一级 -->
+	<select id="findAllAuth" resultMap="authorityMap"
+		parameterType="string">
+		select t1.* from t_user u1
+		inner join t_userrole tu
+		on tu.uid = u1.id
+		inner join t_role tr
+		on tu.rid = tr.ro_id
+		inner join
+		t_roleauthority tr1
+		on tr1.rid = tr.ro_id
+		inner join t_authority t1
+		on t1.id = tr1.aid
+		where u1.no=#{username} and t1.parentId=0;
+	</select>
+	<!-- 根据id获取权限表 -->
+	<select id="findAllName" resultMap="authorityMap"
+		parameterType="int">
+		select * from t_authority where parentId=#{id};
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1) from t_authority;
+	</select>
+
+	<select id="countbyParent" resultType="int">
+		select count(1) from
+		t_authority where parentId=0;
+	</select>
+
+	<!-- 更新权限 -->
+	<update id="update" parameterType="Authority">
+		update t_authority set
+		title=#{title},parentId=#{parentId},aurl=#{aurl},aicon=#{aicon} where
+		id=#{id}
+	</update>
+
+	<!-- 根据id查找权限 -->
+	<select id="findById" parameterType="int"
+		resultMap="authorityMap">
+		select * from t_authority where id = #{id}
+	</select>
+
+	<!-- 根据id查找权限 -->
+	<select id="findByParentId" resultMap="authorityMap">
+		select * from t_authority
+		where parentId = 0
+	</select>
+
+	<!-- 根据id删除权限 -->
+	<delete id="deleteRoleAuById" parameterType="int">
+		DELETE from
+		t_authority where id = #{id}
+	</delete>
+	<select id="findRoleAuById" resultMap="authorityMap"
+		parameterType="int">
+		select * from t_authority where parentId = #{parentId}
+	</select>
+
+	<insert id="addRoleAuById" parameterType="Authority">
+		insert into
+		t_authority(title,parentId,aurl,aicon)
+		values(#{title},#{parentId},#{aurl},#{aicon})
+	</insert>
+
+
+	<insert id="addRoleAuByIdtotalId" parameterType="Authority">
+		insert into
+		t_authority(id,title,parentId,aurl,aicon)
+		values(#{id},#{title},#{parentId},#{aurl},#{aicon})
+	</insert>
+	
+	<select id="findAuthLimit" parameterType="map" resultMap="authorityMap">
+		select * from t_authority limit #{index}, #{size}
+	</select>
+
+</mapper>

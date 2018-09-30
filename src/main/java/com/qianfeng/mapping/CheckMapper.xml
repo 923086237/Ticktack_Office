@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianfeng.dao.ICheckDao">
+  <resultMap type="Check" id="checkMap">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="info" jdbcType="VARCHAR" property="info" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="startname" jdbcType="VARCHAR" property="startname" />
+    <result column="startno" jdbcType="VARCHAR" property="startno" />
+    <result column="startdate" jdbcType="DATE" property="startdate" />
+    <result column="enddate" jdbcType="DATE" property="enddate" />
+    <result column="days" jdbcType="INTEGER" property="days" />
+    <result column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, info, type, startname, startno, startdate, enddate, days, pid, flag
+  </sql>
+  <select id="findAllCheck" parameterType="map" resultType="Check">
+  	select * from t_check where startno=#{startno} limit #{index},#{size}
+  </select>
+  <select id="count" resultType="int">
+  	select count(1) from t_check where startname=#{startname}
+  </select>
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianfeng.dao.IUsersDao">
+
+  <resultMap id="UsersMap" type="users">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="no" jdbcType="VARCHAR" property="no" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="headphoto" jdbcType="VARCHAR" property="headphoto" />
+    
+    <collection property="roles"
+			javaType="java.util.ArrayList" 
+			ofType="com.qianfeng.entity.Role"
+			resultMap="com.qianfeng.dao.IRoleDao.roleMap">
+		</collection>
+  </resultMap>
+  
+  <select id="findByName" parameterType="string" resultType="Users">
+  	select * from t_user where no=#{no}
+  </select>
+  
+  <select id="findById" parameterType="int" resultMap="UsersMap">
+  	select * from t_user where id=#{id}
+  </select>
+  
+  <select id="count" resultType="int">
+  	select count(1) from t_user	
+  </select>
+  
+  <delete id="deleteById" parameterType="int">
+  	delete from t_user where id=#{id}
+  </delete>
+  
+  <update id="updateUser" parameterType="Users">
+  	update t_user set name=#{name} where id=#{id}
+  </update>
+  
+  <select id="findByNoOrFlag" parameterType="map" resultMap="UsersMap">
+  	SELECT * from t_user t1
+	INNER JOIN t_userrole u1
+	on t1.id = u1.uid 
+	INNER JOIN t_role r1
+	on u1.rid = r1.ro_id
+	<!-- 将多余的前缀，比如and，自动删掉 -->
+	<where>
+		<if test="no!=null">
+			and no=#{no}
+		</if>
+		<if test="flag!=null">
+			and flag=#{flag}
+		</if>
+		
+		<if test="name!=null">
+			and t1.name=#{name}
+		</if>
+		
+		<if test="ro_id!=null">
+			and r1.info=#{ro_id}
+		</if>
+		
+	</where>
+	 limit #{index},#{size} 
+  </select>
+
+</mapper>

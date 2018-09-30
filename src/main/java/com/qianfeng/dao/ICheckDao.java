@@ -1,0 +1,13 @@
+package com.qianfeng.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.qianfeng.entity.Check;
+
+
+public interface ICheckDao {
+    public List<Check> findAllCheck(Map<String, Object> map);
+    
+    public int count();
+}

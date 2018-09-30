@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 使用对应的Dao层的接口 -->
+<mapper namespace="com.qianfeng.dao.IRoleDao">
+
+	<resultMap type="Role" id="roleMap">
+		<id property="ro_id" column="ro_id"/>
+		<result property="info" column="info" />
+		<result property="name" column="name" />
+		<result property="parentId" column="parentId" />
+		
+	</resultMap>
+	<select id="findRoleAll" resultMap="roleMap">
+		select * from t_role
+	</select>
+	
+	<insert id="addRole" parameterType="java.util.ArrayList">
+		insert into t_userrole(uid,rid) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(${item.id}, ${item.rid})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteRole" parameterType="int">
+		delete from t_userrole where uid = #{id}
+	</delete>
+	
+	
+	
+</mapper>
+
+
+
+

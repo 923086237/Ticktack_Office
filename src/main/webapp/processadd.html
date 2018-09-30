@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>滴答办公系统-流程审批</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="stylesheet" href="media/layui/css/layui.css" media="all">
+<script type="text/javascript" src="media/js/jquery.min.js"></script>
+</head>
+<body>
+	<div class="layui-container" style="margin-top: 5px">
+		<form id="fm1" class="layui-form layui-form-pane" onsubmit="return false">
+			<div class="layui-form-item">
+
+					<label class="layui-form-label">起始日期</label>
+					<div class="layui-input-block">
+						<input type="text" name="createtime" class="layui-input mydate">
+					</div>
+
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">结束日期</label>
+				<div class="layui-input-block">
+					<input type="text" name="endDate" class="layui-input mydate">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">涉及天数</label>
+				<div class="layui-input-inline">
+					<input type="number" name="day" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">天</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">操作类型</label>
+				<div class="layui-input-block">
+					<select name="type" >
+						<option value="-1">--请选择类型--</option>
+						<option value="5">请假</option>
+						<option value="4">调休</option>
+						<option value="3">加班</option>
+						<option value="6">外出</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">审批领导</label>
+				<div class="layui-input-block">
+					<select name="leader"  id="cds">
+						<option value="-1">--请选择领导--</option>
+						
+					</select>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">说明信息</label>
+				<div class="layui-input-block">
+					<input name="location" placeholder="请输入原因" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				
+				<button class="layui-btn" id="btn1"
+					class="submit_btn" lay-submit="" lay-filter="submitBtn">添加申请</button>
+			</div>
+		</form>
+	</div>
+	<script src="media/layui/layui.js"></script>
+	<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+	<script>
+	var form;
+	var layui;
+		layui.use([ 'form', 'laydate' ],
+						function() {
+						form = layui.form, laydate = layui.laydate;
+							//日期
+                            lay('.mydate').each(function(){
+                                laydate.render({
+                                    elem: this
+                                });
+                            });
+							//自定义验证规则
+							form.verify({
+								title : function(value) {
+									if (value.length < 5) {
+										return '标题至少得5个字符啊';
+									}
+								},
+								pass : [ /(.+){6,12}$/, '密码必须6到12位' ],
+								content : function(value) {
+									layedit.sync(editIndex);
+								}
+							});
+							initData();
+							 
+							
+							
+				
+					
+		});
+		//初始化数据
+		function initData() {
+			$.get("findLeader",null,function(arr){
+				
+				/* for(i=0;i<arr.length;i++){ */
+				$("#cds").append("<option value='"+arr.ro_id+"'>"+arr.info+"</option>");
+				/* } */
+				form.render("select");
+				form.on('submit(submitBtn)', function(){
+					 $.ajax({
+	                        url: "insertWork",
+	                        data: $("#fm1").serialize(),
+	                        success: function (obj) {
+	                            if (obj.code == 1) {
+	                                layer.msg("编辑权限成功");
+	                                tableIns.reload();
+	                            } else {
+	                                layer.msg("编辑权限失败");
+	                            }
+	                        }
+	                    })
+					
+					
+				})		
+			});
+		}
+	</script>
+</body>
+</html>
